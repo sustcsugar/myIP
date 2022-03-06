@@ -1,0 +1,33 @@
+ 
+****************************************
+Report : area
+Design : top_denoise_sram
+Version: Q-2019.12-SP5-5
+Date   : Wed Feb 16 23:13:48 2022
+****************************************
+
+Library(s) Used:
+
+    RAMUHDDP4096x128bit_ssg0p81vm40c (File: /foundry/tsmc28lib/synthesis/lib/RAMUHDDP4096x128bit_ssg0p81vm40c.db)
+    RAMUHDDP256x128bit_ssg0p81vm40c (File: /foundry/tsmc28lib/synthesis/lib/RAMUHDDP256x128bit_ssg0p81vm40c.db)
+    tcbn28hpcplusbwp30p140hvtssg0p81vm40c (File: /foundry/tsmc28lib/synthesis/lib/tcbn28hpcplusbwp30p140hvtssg0p81vm40c.db)
+    RAMlinebuffer1280x112bit_ssg0p81vm40c (File: /foundry/tsmc28lib/synthesis/lib/RAMlinebuffer1280x112bit_ssg0p81vm40c.db)
+
+Number of ports:                           33
+Number of nets:                         20594
+Number of cells:                        17180
+Number of combinational cells:          13564
+Number of sequential cells:              3018
+Number of macros/black boxes:              16
+Number of buf/inv:                       1852
+Number of references:                      83
+
+Combinational area:              10401.551920
+Buf/Inv area:                      472.500007
+Noncombinational area:            6879.095668
+Macro/Black Box area:          1725254.910156
+Net Interconnect area:      undefined  (Wire load has zero net area)
+
+Total cell area:               1742535.557744
+Total area:                 undefined
+1
