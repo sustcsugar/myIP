@@ -21,5 +21,5 @@ plt.subplot(2,2,2);plt.imshow(img_decoder);plt.axis('off');plt.title('decoder')
 plt.subplot(2,2,3);plt.imshow(img_diff);plt.axis('off');plt.title('img_diff')
 plt.subplot(2,2,4);plt.imshow(img_out,cmap='gray',vmax=255,vmin=0);plt.axis('off');plt.title('img_out')
 
-
+plt.show()
 
