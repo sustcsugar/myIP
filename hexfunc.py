@@ -200,11 +200,11 @@ def gradient_gray_img(width, height):
 
 if __name__ == '__main__':
     ### hex to image
-    hex = './jpeg_output/b_channel_filtered_10_halfimage.dat'
+    hex = './jpeg_output/2th_frame_with_ffd9.txt'
     img = hex2image(hex,1280,720,0)
     #r,g,b = cv2.split(img)
     #img_bgr = cv2.merge([b,g,r])
-    cv2.imwrite('./python_out/b_channel_filtered_10_halfimage.jpg',img)
+    cv2.imwrite('./python_out/2th_frame_with_ffd9.jpg',img)
     plt.imshow(img,cmap='gray',vmin=0,vmax=255)
     plt.show()
 
