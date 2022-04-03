@@ -1,4 +1,6 @@
 
+import cmath
+from os import replace
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -48,7 +50,6 @@ def img2hex(image,hex_out, mode=0):
             #print("pixel out:["+i+" , "+j+"]\n")
     outfile.close()
 
-
 def hex2image(hex,width,height,mode=0):
     '''
     Function: convert hex to image. 
@@ -93,6 +94,59 @@ def hex2image(hex,width,height,mode=0):
 
     return  img_out
 
+def block_hex2image(hex,width,height,blockwidth=16, blockheight=8,mode=0):
+    '''
+    Function: convert hex to image. 
+    :param hex: input hex path
+    :param width: width of output image
+    :param height:height of output image 
+    :param mode: mode=0 for grayscale, mode=1 for RGB
+    :return: img_out
+    input hex format for    gray:   AA or 0xAA
+                            RGB:    AABBCC or 0xAABBCC
+    '''
+    block_num_x = width / 16
+    block_num_y = height / 8
+
+    if mode == 0:
+        img_out = np.zeros((height,width,1),np.uint8)
+    else:
+        img_out = np.zeros((height,width,3),np.uint8)
+
+    file_in = open(hex,'r')
+    img_hex = file_in.readlines()
+   
+    data_set = []
+    # 清理数据, 进行格式转换
+    for data in img_hex:
+        data = data.strip('\n')
+
+        if data[0:2] == '0x': #如果数据格式为0xff,则取0x之后的数据
+            data1 = data[2:]
+        else:                  #如果数据格式为ff，则取全部的数值
+            data1 = data[:]
+
+        data_clean = data1.replace('x','0')
+        data_set.append(data_clean)  #将处理好的数据放到数组里面
+    
+    print('data number is {}'.format(len(data_set)) )
+    
+    file_out = open('output.log','w')
+    for i in range(len(data_set)):
+        block_num = int(i/128)
+        block_position = (i)%128
+
+        pixel_x = int(block_num % block_num_x) * 16 + int(block_position%16)
+        pixel_y = int(block_num / block_num_x) * 8 + int(block_position/16)
+        
+        output = '{:04} num:{:04} position:{:04};  [{:04},{:04}]:{:03}'.format(i,block_num, block_position, pixel_x,pixel_y,int(data_set[i],base=16))
+        file_out.write(output+'\n')
+        print(output)
+        
+        img_out[pixel_y,pixel_x] = int(data_set[i],base=16)
+
+    return  img_out
+
 
 def read_isp_file(file_name,write_file):
     '''
@@ -108,7 +162,6 @@ def read_isp_file(file_name,write_file):
             write_file.write(element[5]+' : '+element[2]+"\n")
             print(element[5]+' : '+element[2]+'\n')
     write_file.write("\n\n")
-  
  
 def img_resize(img_name):
     img = cv2.imread(img_name,0)
@@ -124,8 +177,6 @@ def img_resize(img_name):
 
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-
 
 def read_decoder_hexfile(file_name):
     '''
@@ -148,7 +199,6 @@ def read_decoder_hexfile(file_name):
             img_out[i,j,0] = b
             img_out[i,j,1] = g
             img_out[i,j,2] = r
-
 
 def checkerboard_picture_gen(height, width, size, low = 0,high=255):
     '''
@@ -180,7 +230,6 @@ def checkerboard_picture_gen(height, width, size, low = 0,high=255):
 
     return img_out
 
-
 def gradient_gray_img(width, height):
     '''
     生成灰度渐变图, 用于测试. 
@@ -195,17 +244,31 @@ def gradient_gray_img(width, height):
             img_out[i][j] = (int)((i * j)**0.5 % 256)
     return img_out
 
-
-
+def gen_gray_jpeg(img):
+    '''
+    生成单通道的jpeg图像,用于测试
+    img - string : 输入的RGB三通道图像路径
+    '''
+    name = img[0:-4]
+    rgb_img = cv2.imread(img,1)
+    b,g,r = cv2.split(rgb_img)
+    cv2.imwrite(name+'_b_channel.jpg', b, [int(cv2.IMWRITE_JPEG_QUALITY),75])
+    cv2.imwrite(name+'_g_channel.jpg', g, [int(cv2.IMWRITE_JPEG_QUALITY),75])
+    cv2.imwrite(name+'_r_channel.jpg', r, [int(cv2.IMWRITE_JPEG_QUALITY),75])
 
 if __name__ == '__main__':
-    ### hex to image
-    hex = './jpeg_output/2th_frame_with_ffd9.txt'
-    img = hex2image(hex,1280,720,0)
-    #r,g,b = cv2.split(img)
-    #img_bgr = cv2.merge([b,g,r])
-    cv2.imwrite('./python_out/2th_frame_with_ffd9.jpg',img)
-    plt.imshow(img,cmap='gray',vmin=0,vmax=255)
+    #### hex to image
+    #hex = './jpeg_output/jpeg_out.dat'
+    #img = hex2image(hex,1920,1080,0)
+    ##r,g,b = cv2.split(img)
+    ##img_bgr = cv2.merge([b,g,r])
+    #cv2.imwrite('./python_out/jpeg_out.jpg',img)
+    #plt.imshow(img,cmap='gray',vmin=0,vmax=255)
+    #plt.show()
+    data = './jpeg_output/720p_block.dat'
+    img = block_hex2image(data,1280,720)
+    cv2.imwrite('./python_out/720p_block.jpg',img)
+    plt.imshow(img,cmap='gray',vmax=255,vmin=0)
     plt.show()
 
 # generate checkboard
