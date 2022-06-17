@@ -15,7 +15,7 @@ import re
 import os
 
 parse = argparse.ArgumentParser(description='根据dc生成的综合报告, 计算出后端floorplan的大小')
-parse.add_argument('--aspect_ratio',type=str,required=True,default='1:1',help='x:y比')
+parse.add_argument('--aspect_ratio',type=str,required=True,default='1:1',help='W:H or WxH')
 parse.add_argument('--fill',type=int,required=True,default=40,help='填充率 0-100')
 parse.add_argument('--arealog',type=str,required=True,help='面积报告文件')
 parse.add_argument('--cellname',type=str,required=True,help='cellname')
