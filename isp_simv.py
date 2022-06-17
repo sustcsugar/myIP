@@ -1,0 +1,50 @@
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
+import cv_func.hexfunc as hex_func
+
+print('============== START reading GRAY ==============')
+img_input= hex_func.hex2image('./isp_out/frame_1_raw.txt',1920,3240,mode=0)
+img_inform = hex_func.hex2image('./isp_out/image_out_2_inform.hex',1920,3240,mode=0)
+img_fifo = hex_func.hex2image('./isp_out/image_out_3_fifo.hex',1920,3240,mode=0)
+img_outform= hex_func.hex2image('./isp_out/image_out_4_outform.hex',1920,3240,mode=0)
+img_bls= hex_func.hex2image('./isp_out/image_out_5_bls.hex',1920,3240,mode=0)
+img_gamma_in= hex_func.hex2image('./isp_out/image_out_6_gamma_in.hex',1920,3240,mode=0)
+img_lsc4= hex_func.hex2image('./isp_out/image_out_7_lsc4.hex',1920,3240,mode=0)
+img_awb_gain= hex_func.hex2image('./isp_out/image_out_8_awb_gain.hex',1920,3240,mode=0)
+img_dpcc= hex_func.hex2image('./isp_out/image_out_9_dpcc.hex',1920,3240,mode=0)
+img_dpf= hex_func.hex2image('./isp_out/image_out_10_dpf.hex',1920,3240,mode=0)
+
+print('============== START reading RGB ==============')
+img_filt= hex_func.hex2image('./isp_out/image_out_11_filt.hex',1920,3240,mode=1)
+img_cnr= hex_func.hex2image('./isp_out/image_out_12_cnr.hex',1920,3240,mode=1)
+img_ct= hex_func.hex2image('./isp_out/image_out_13_ct.hex',1920,3240,mode=1)
+img_ahe = hex_func.hex2image('./isp_out/image_out_14_ahe_wdr_ahe.hex',1920,3240,mode=1)
+img_wdr= hex_func.hex2image('./isp_out/image_out_15_ahe_wdr_wdr.hex',1920,3240,mode=1)
+img_gamma_out= hex_func.hex2image('./isp_out/image_out_16_gamma_out.hex',1920,3240,mode=1)
+img_csm_yuv2rgb= hex_func.hex2image('./isp_out/image_out_17_csm_yuv2rgb.hex',1920,3240,mode=1)
+print('============== FINISH reading image ==============')
+
+plt.figure('ISP全阶段输出图像')
+# RAW
+plt.subplot(4,5,1);plt.imshow(img_input,cmap='gray',vmax=255,vmin=0); plt.title('input');plt.axis('off')
+plt.subplot(4,5,2);plt.imshow(img_inform,cmap='gray',vmax=255,vmin=0 ); plt.title('inform' );plt.axis('off')
+plt.subplot(4,5,3);plt.imshow(img_fifo,cmap='gray',vmax=255,vmin=0);    plt.title('fifo' );plt.axis('off')
+plt.subplot(4,5,4);plt.imshow(img_outform,cmap='gray',vmax=255,vmin=0); plt.title('outform' );plt.axis('off')
+plt.subplot(4,5,5);plt.imshow(img_bls,cmap='gray',vmax=255,vmin=0);     plt.title('bls' );plt.axis('off')
+plt.subplot(4,5,6);plt.imshow(img_gamma_in,cmap='gray',vmax=255,vmin=0);plt.title('gamma_in' );plt.axis('off')
+plt.subplot(4,5,7);plt.imshow(img_lsc4,cmap='gray',vmax=255,vmin=0);    plt.title('lsc' );plt.axis('off')
+plt.subplot(4,5,8);plt.imshow(img_awb_gain,cmap='gray',vmax=255,vmin=0);plt.title('awb_gain');plt.axis('off')
+plt.subplot(4,5,9);plt.imshow(img_dpcc,cmap='gray',vmax=255,vmin=0);    plt.title('dpcc');plt.axis('off')
+plt.subplot(4,5,10);plt.imshow(img_dpf,cmap='gray',vmax=255,vmin=0);    plt.title('dpf');plt.axis('off')
+
+# RGB
+plt.subplot(4,5,11);plt.imshow(img_filt);plt.title('filt');plt.axis('off')
+plt.subplot(4,5,12);plt.imshow(img_cnr);plt.title('cnr');plt.axis('off')
+plt.subplot(4,5,13);plt.imshow(img_ct);plt.title('ct');plt.axis('off')
+plt.subplot(4,5,14);plt.imshow(img_ahe);plt.title('ahe');plt.axis('off')
+plt.subplot(4,5,15);plt.imshow(img_wdr);plt.title('wdr');plt.axis('off')
+plt.subplot(4,5,16);plt.imshow(img_gamma_out);plt.title('gamma_out');plt.axis('off')
+plt.subplot(4,5,17);plt.imshow(img_csm_yuv2rgb);plt.title('csm_yuv2rgb');plt.axis('off')
+plt.show()

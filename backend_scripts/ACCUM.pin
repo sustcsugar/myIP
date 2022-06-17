@@ -1,0 +1,9 @@
+OUT[11:0] M4  top
+test[5:0] M4  bottom
+asdasd[0:3] M4  bottom
+IN[10:10] M4 bottom
+LD M4 bottom
+CLK M4 bottom
+RST M4 bottom
+
+
