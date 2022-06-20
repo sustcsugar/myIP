@@ -1,7 +1,4 @@
-import numpy as np
-import cv2
 import matplotlib.pyplot as plt
-
 import cv_func.hexfunc as hex_func
 
 print('============== START reading GRAY ==============')
