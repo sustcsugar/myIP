@@ -1,4 +1,5 @@
 from os import replace
+from cv2 import imshow
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
@@ -274,19 +275,57 @@ def extract_raw(img_path:str,bayer_pattern:str,hex_out_path:str):
 
     return raw_img
 
+def debayer(img_in:np.ndarray,flags=0):
+    '''
+    去马赛克算法
+    @param img_in : 输入图像矩阵,raw图
+    @param flags: 选择去马赛克算法 默认为0
+
+    return img_out: 输出图像矩阵,三通道rgb图
+    '''
+
+    return
+
+def debayer_bilinear(img_in,bayer_pattern:str):
+    img_pading = np.pad(img_in,((2,2),(2,2),(0,0)),'reflect')
+    raw_height= img_in.shape[0]
+    raw_width = img_in.shape[1]
+    img_rgb = np.zeros((raw_height,raw_width,3),dtype=np.uint8)
+
+    for y in range(2,img_pading.shape[0]-2-1,2):
+        for x in range(2,img_pading.shape[1]-2-1,2):
+            if bayer_pattern == 'rggb':
+                r = img_pading[y,x]
+                gr = img_pading[y,x+1]
+                gb = img_pading[y+1,x]
+                b = img_pading[y+1,x+1]
+                i = x-2
+                j = y-2
+                # at r
+                r_b = (img_pading[y-1,x-1] + img_pading[y-1,x+1] + img_pading[y+1,x-1] + img_pading[y+1,x+1] )/4
+                r_g = (img_pading[y-1,x] + img_pading[y+1,x] + img_pading[y,x-1] + img_pading[y,x+1] )/4
+                img_rgb[j,i,:] = [r,r_g,r_b]
+
+                # at b
+                b_r = ( img_pading[y,x] + img_pading[y,x+2] + img_pading[y+2,x] + img_pading[y+2,x+2] ) / 4
+                b_g = ( img_pading[y,x+1] + img_pading[y+1,x] + img_pading[y+1,x+2] + img_pading[y+2,x+1] ) / 4
+                img_rgb[j+1,j+1,:] = [b_r,b_g,b]
+
+                # at gr
+                gr_r = ( img_pading[y,x] + img_pading[y,x+2] ) / 2
+                gr_b = ( img_pading[y-1,x+1] + img_pading[y+1,x+1] ) / 2
+                img_rgb[j,i+1,:] = [gr_r,gr,gr_b]
+
+                # at gb
+                gb_r = ( img_pading[y,x] + img_pading[y+2,x] ) / 2
+                gb_b = ( img_pading[y+1,x-1] + img_pading[y+1,x+1] ) / 2
+                img_rgb[j+1,i,:] = [gb_r,gb,gb_b]
+
+    return img_rgb
 
 if __name__ == '__main__':
-    img_path = '../image/rgb.jpg'
-    img = cv2.imread(img_path)
-    b,g,r = cv2.split(img)
-    rgb_img = cv2.merge((r,g,b))
-    raw_rggb = extract_raw(img_path,'rggb','raw_rggb.hex')
-    raw_bggr = extract_raw(img_path,'bggr','raw_bggr.hex')
-    raw_grbg = extract_raw(img_path,'grbg','raw_grbg.hex')
-    raw_gbrg = extract_raw(img_path,'gbrg','raw_gbrg.hex')
-    plt.subplot(3,2,1);plt.imshow(rgb_img);plt.axis('off')
-    plt.subplot(3,2,3);plt.imshow(raw_rggb,cmap='gray',vmax=255,vmin=0);plt.title('rggb');plt.axis('off')
-    plt.subplot(3,2,4);plt.imshow(raw_bggr,cmap='gray',vmax=255,vmin=0);plt.title('bggr');plt.axis('off')
-    plt.subplot(3,2,5);plt.imshow(raw_grbg,cmap='gray',vmax=255,vmin=0);plt.title('grbg');plt.axis('off')
-    plt.subplot(3,2,6);plt.imshow(raw_gbrg,cmap='gray',vmax=255,vmin=0);plt.title('gbrg');plt.axis('off')
+    img_raw = hex2image('raw_rggb.hex',1601,863)
+    img_rgb = debayer_bilinear(img_raw,'rggb')
+    plt.subplot(221);plt.imshow(img_raw,cmap='gray')
+    plt.subplot(222);plt.imshow(img_rgb)
     plt.show()
