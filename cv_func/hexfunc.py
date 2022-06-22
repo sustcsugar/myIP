@@ -328,6 +328,9 @@ def debayer_nearest_neighbor(img_in:np.ndarray,bayer_pattern:str):
     return img_rgb
 
 def debayer_bilinear(img_in,bayer_pattern:str):
+    '''
+    img_in : 必须为二维数组,不能有Z轴
+    '''
     img_pading = np.pad(img_in,((2,2),),'reflect')
     img_pading = img_pading.astype(int)   # convert uint8 to int to avoid data overflow.
     raw_height= img_in.shape[0]
