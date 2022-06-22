@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 __version__ = '0.1'
 
-def random_noise(image, noise_number):
+def random_noise(image:str, noise_number:int):
     '''
     添加随机噪点(实际上就是随机在图像上将像素点的灰度值变为255即白色)
     :param image: 需要加噪的图片
@@ -21,7 +21,7 @@ def random_noise(image, noise_number):
         img_noise[x,y,:] = 255
     return img_noise
 
-def img2hex(image,hex_out, mode=0):
+def img2hex(image:str,hex_out:str, mode=0):
     '''
     将图片转换为hex文件, 如果是彩色图片,会转换为gray图.
     :param image: 需要转换的图片
@@ -47,13 +47,13 @@ def img2hex(image,hex_out, mode=0):
             #print("pixel out:["+i+" , "+j+"]\n")
     outfile.close()
 
-def hex2image(hex,width,height,mode=0):
+def hex2image(hex:str,width:int,height:int,mode=0):
     '''
     Function: convert hex to image. 
-    :param hex: input hex path
-    :param width: width of output image
-    :param height:height of output image 
-    :param mode: mode=0 for grayscale, mode=1 for RGB
+    :param hex:     input hex path
+    :param width:   width  of output image
+    :param height:  height of output image 
+    :param mode:    mode=0 for grayscale, else for RGB. Default is grayscale mode.
     :return: img_out
     input hex format for    gray:   AA or 0xAA
                             RGB:    AABBCC or 0xAABBCC
@@ -91,7 +91,7 @@ def hex2image(hex,width,height,mode=0):
 
     return  img_out
 
-def block_hex2image(hex,width,height,blockwidth=16, blockheight=8,mode=0):
+def block_hex2image(hex:str,width:int,height:int,blockwidth=16, blockheight=8,mode=0):
     '''
     Function: convert hex to image. 
     :param hex: input hex path
@@ -149,20 +149,7 @@ def block_hex2image(hex,width,height,blockwidth=16, blockheight=8,mode=0):
     return  img_out
 
 
-def read_isp_file(file_name,write_file):
-    '''
-    读取isp的地址文件
-    param: file 输入的文件
-    '''
-    file_in = open(file_name,'r')
-    lines = file_in.readlines()
-    write_file.write("//"+file_name+ "\n")
-    for line in lines:
-        if(len(line) > 100):
-            element = line.split(',')
-            write_file.write(element[5]+' : '+element[2]+"\n")
-            print(element[5]+' : '+element[2]+'\n')
-    write_file.write("\n\n")
+
 
 def checkerboard_picture_gen(height, width, size, low = 0,high=255):
     '''

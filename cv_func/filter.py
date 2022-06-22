@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+from random import gauss
 import numpy as np
 
+__version__ = '202203.01'
 
 def gaussian_kernel(size=3,sigma=1,k=1):
     '''
-    根据提供的参数生成高斯模板,大小为 mask*mask
+    根据提供的参数生成高斯模板,大小为 size*size
     '''
     if sigma==0:
         sigma = ((size-1) * 0.5 -1)*0.3 + 0.8
@@ -31,11 +33,7 @@ def gaussian_kernel_normal(size=3,sigma=1,k=1):
     x0 = 0
     y0 = 0
     gauss = 1/(2*np.pi*sigma**2) * np.exp(- ((x -x0)**2 + (y - y0)**2)/ (2 * sigma**2))
-    sum = 0
-    for i in gauss:
-        for j in i:
-            sum = sum +j
-    normal = gauss/sum
+    normal = gauss/gauss.sum()
 
     return normal
 
@@ -58,3 +56,7 @@ def bilateral_filter(size=3,sigma_color=1,sigma_space=1,k=1):
     gaussian = gaussian_kernel_normal(5,1,1)
     color = color_level(6,30)
 
+if __name__ == '__main__' :
+    gaussion = gaussian_kernel_normal()
+    print(gaussion)
+    print(gaussion.sum())
