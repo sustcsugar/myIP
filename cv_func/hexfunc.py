@@ -1,4 +1,3 @@
-
 from os import replace
 import numpy as np
 import cv2
@@ -225,8 +224,82 @@ def gen_gray_jpeg(img):
     cv2.imwrite(name+'_g_channel.jpg', g, [int(cv2.IMWRITE_JPEG_QUALITY),75])
     cv2.imwrite(name+'_r_channel.jpg', r, [int(cv2.IMWRITE_JPEG_QUALITY),75])
 
+
+def extract_raw(img_path:str,bayer_pattern:str,hex_out_path:str):
+    '''
+    用于提取RGB图像的raw图片
+    @param img_path : 输入RGB图像的地址
+    @param bayer_pattern : 要提取的pattern
+    @param hex_out_path : 要输出hex文件的地址
+    '''
+    hex_out = open(hex_out_path,'w')
+    rgb_img = cv2.imread(img_path)
+    if rgb_img is None:
+        print('The file path or file does not exist, please check the path or filename')
+        exit()
+    else:
+        b,g,r = cv2.split(rgb_img)
+        print('Shpae of imput image:{};\tDtype of image: {};\tMax value of input:{}; Min value of input:{}'.format(rgb_img.shape,rgb_img.dtype,rgb_img.max(),rgb_img.min()))
+
+    raw_img = np.zeros_like(r)
+    if bayer_pattern == 'rggb':
+        r_pixel = r[::2,::2]
+        gr_pixel = g[::2,1::2]
+        b_pixel= b[1::2,1::2]
+        gb_pixel = g[1::2,::2]
+        raw_img[::2,::2] = r_pixel
+        raw_img[::2,1::2] = gr_pixel
+        raw_img[1::2,1::2] = b_pixel
+        raw_img[1::2,::2] = gb_pixel
+    elif bayer_pattern == 'bggr':
+        b_pixel = b[::2,::2]
+        gb_pixel = g[::2,1::2]
+        gr_pixel = g[1::2,::2]
+        r_pixel = r[1::2,1::2]
+        raw_img[::2,::2]=b_pixel
+        raw_img[::2,1::2]=gb_pixel
+        raw_img[1::2,::2]=gr_pixel
+        raw_img[1::2,1::2]=r_pixel
+    elif bayer_pattern == 'grbg':
+        gr_pixel = g[::2,::2]
+        r_pixel = r[::2,1::2]
+        b_pixel = b[1::2,::2]
+        gb_pixel = g[1::2,1::2]
+        raw_img[::2,::2]=gr_pixel
+        raw_img[::2,1::2]=r_pixel
+        raw_img[1::2,::2]=b_pixel
+        raw_img[1::2,1::2]=gb_pixel
+    elif bayer_pattern == 'gbrg':
+        gb_pixel = g[::2,::2]
+        b_pixel = b[::2,1::2]
+        r_pixel = r[1::2,::2]
+        gr_pixel = g[1::2,1::2]
+        raw_img[::2,::2]=gb_pixel
+        raw_img[::2,1::2]=b_pixel
+        raw_img[1::2,::2]=r_pixel
+        raw_img[1::2,1::2]=gr_pixel
+    
+    raw_flat = raw_img.flatten()
+    for data in raw_flat:
+        conv_to_hex = '{:02X}'.format(data)
+        hex_out.write(conv_to_hex+'\n')
+    hex_out.close()
+
+    return raw_img
+
+
 if __name__ == '__main__':
-    img = gradient_img()
-    cv2.imwrite('gradient.png',img)
-    plt.imshow(img)
+    img_path = '../image/rgb.jpg'
+    img = cv2.imread(img_path)
+    b,g,r = cv2.split(img)
+    rgb_img = cv2.merge((r,g,b))
+    raw_rggb = extract_raw(img_path,'rggb','raw_rggb.hex')
+    raw_bggr = extract_raw(img_path,'bggr','raw_bggr.hex')
+    raw_grbg = extract_raw(img_path,'grbg','raw_grbg.hex')
+    raw_gbrg = extract_raw(img_path,'gbrg','raw_gbrg.hex')
+    plt.subplot(3,2,1);plt.imshow(rgb_img);plt.axis('off')
+    plt.subplot(3,2,3);plt.imshow(raw_rggb,cmap='gray',vmax=255,vmin=0);plt.title('rggb');plt.axis('off')
+    plt.subplot(3,2,4);plt.imshow(raw_bggr,cmap='gray',vmax=255,vmin=0);plt.title('bggr');plt.axis('off')
+    plt.subplot(3,2,5);plt.imshow(raw_grbg,cmap='gray',vmax=255,vmin=0);plt.title('grbg');plt.axis('off')
+    plt.subplot(3,2,6);plt.imshow(raw_gbrg,cmap='gray',vmax=255,vmin=0);plt.title('gbrg');plt.axis('off')
     plt.show()
