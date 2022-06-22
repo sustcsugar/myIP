@@ -60,7 +60,7 @@ def hex2image(hex:str,width:int,height:int,mode=0):
                             RGB:    AABBCC or 0xAABBCC
     '''
     if mode == 0:
-        img_out = np.zeros((height,width,1),np.uint8)
+        img_out = np.zeros((height,width),np.uint8)
     else:
         img_out = np.zeros((height,width,3),np.uint8)
 
@@ -286,8 +286,12 @@ def debayer(img_in:np.ndarray,flags=0):
 
     return
 
-def debayer_bilinear(img_in,bayer_pattern:str):
-    img_pading = np.pad(img_in,((2,2),(2,2),(0,0)),'reflect')
+
+def debayer_nearest_neighbor(img_in:np.ndarray,bayer_pattern:str):
+    '''
+    img_in : 必须为二维数组,不能有Z轴
+    '''
+    img_pading = np.pad(img_in,(2,2),'reflect')
     raw_height= img_in.shape[0]
     raw_width = img_in.shape[1]
     img_rgb = np.zeros((raw_height,raw_width,3),dtype=np.uint8)
@@ -302,14 +306,52 @@ def debayer_bilinear(img_in,bayer_pattern:str):
                 i = x-2
                 j = y-2
                 # at r
-                r_b = (img_pading[y-1,x-1] + img_pading[y-1,x+1] + img_pading[y+1,x-1] + img_pading[y+1,x+1] )/4
+                r_b = img_pading[y+1,x+1]
+                r_g = img_pading[y,x+1]
+                img_rgb[j,i,:] = [r,r_g,r_b]
+
+                # at b
+                b_r = img_pading[y,x]
+                b_g = img_pading[y+1,x]
+                img_rgb[j+1,i+1,:] = [b_r,b_g,b]
+
+                # at gr
+                gr_r = img_pading[y,x]
+                gr_b = img_pading[y+1,x+1]
+                img_rgb[j,i+1,:] = [gr_r,gr,gr_b]
+
+                # at gb
+                gb_r = img_pading[y,x]
+                gb_b = img_pading[y+1,x+1]
+                img_rgb[j+1,i,:] = [gb_r,gb,gb_b]
+
+    return img_rgb
+
+def debayer_bilinear(img_in,bayer_pattern:str):
+    img_pading = np.pad(img_in,((2,2),),'reflect')
+    img_pading = img_pading.astype(int)   # convert uint8 to int to avoid data overflow.
+    raw_height= img_in.shape[0]
+    raw_width = img_in.shape[1]
+    img_rgb = np.zeros((raw_height,raw_width,3),dtype=np.uint8)
+
+    for y in range(2,img_pading.shape[0]-2-1,2):
+        for x in range(2,img_pading.shape[1]-2-1,2):
+            if bayer_pattern == 'rggb':
+                r = img_pading[y,x]
+                gr = img_pading[y,x+1]
+                gb = img_pading[y+1,x]
+                b = img_pading[y+1,x+1]
+                i = x-2
+                j = y-2
+                # at r
+                r_b = (img_pading[y-1,x-1] + img_pading[y-1,x+1] + img_pading[y+1,x-1] + img_pading[y+1,x+1] )/4    # will overflow if dtype is uint8
                 r_g = (img_pading[y-1,x] + img_pading[y+1,x] + img_pading[y,x-1] + img_pading[y,x+1] )/4
                 img_rgb[j,i,:] = [r,r_g,r_b]
 
                 # at b
                 b_r = ( img_pading[y,x] + img_pading[y,x+2] + img_pading[y+2,x] + img_pading[y+2,x+2] ) / 4
                 b_g = ( img_pading[y,x+1] + img_pading[y+1,x] + img_pading[y+1,x+2] + img_pading[y+2,x+1] ) / 4
-                img_rgb[j+1,j+1,:] = [b_r,b_g,b]
+                img_rgb[j+1,i+1,:] = [b_r,b_g,b]
 
                 # at gr
                 gr_r = ( img_pading[y,x] + img_pading[y,x+2] ) / 2
@@ -320,12 +362,96 @@ def debayer_bilinear(img_in,bayer_pattern:str):
                 gb_r = ( img_pading[y,x] + img_pading[y+2,x] ) / 2
                 gb_b = ( img_pading[y+1,x-1] + img_pading[y+1,x+1] ) / 2
                 img_rgb[j+1,i,:] = [gb_r,gb,gb_b]
+            elif bayer_pattern == 'bggr':
+                b = img_pading[y,x]
+                gb = img_pading[y,x+1]
+                gr = img_pading[y+1,x]
+                r = img_pading[y+1,x+1]
+                i = x-2
+                j = y-2
+                # at b
+                b_r = (img_pading[y-1,x-1] + img_pading[y-1,x+1] + img_pading[y+1,x-1] + img_pading[y+1,x+1] )/4    # will overflow if dtype is uint8
+                b_g = (img_pading[y-1,x] + img_pading[y+1,x] + img_pading[y,x-1] + img_pading[y,x+1] )/4
+                img_rgb[j,i,:] = [b_r,b_g,b]
+
+                # at r
+                r_b = ( img_pading[y,x] + img_pading[y,x+2] + img_pading[y+2,x] + img_pading[y+2,x+2] ) / 4
+                r_g = ( img_pading[y,x+1] + img_pading[y+1,x] + img_pading[y+1,x+2] + img_pading[y+2,x+1] ) / 4
+                img_rgb[j+1,i+1,:] = [r,r_g,r_b]
+
+                # at gb
+                gb_r = ( img_pading[y-1,x+1] + img_pading[y+1,x+1] ) / 2
+                gb_b = ( img_pading[y,x] + img_pading[y,x+2] ) / 2
+                img_rgb[j,i+1,:] = [gb_r,gb,gb_b]
+
+                # at gr
+                gr_r = ( img_pading[y+1,x-1] + img_pading[y+1,x+1] ) / 2
+                gr_b = ( img_pading[y,x] + img_pading[y+2,x] ) / 2
+                img_rgb[j+1,i,:] = [gr_r,gr,gr_b]
+            elif bayer_pattern == 'grbg':
+                b = img_pading[y+1,x]
+                gb = img_pading[y+1,x+1]
+                gr = img_pading[y,x]
+                r = img_pading[y,x+1]
+                i = x-2
+                j = y-2
+                # at r
+                r_b = (img_pading[y-1,x] + img_pading[y-1,x+2] + img_pading[y+1,x] + img_pading[y+1,x+2] )/4    # will overflow if dtype is uint8
+                r_g = (img_pading[y,x] + img_pading[y,x+2] + img_pading[y-1,x+1] + img_pading[y+1,x+1] )/4
+                img_rgb[j,i+1,:] = [r,r_g,r_b]
+
+                # at b
+                b_r = ( img_pading[y,x-1] + img_pading[y,x+1] + img_pading[y+2,x-1] + img_pading[y+2,x+1] ) / 4
+                b_g = ( img_pading[y,x] + img_pading[y+2,x] + img_pading[y+1,x-1] + img_pading[y+1,x+1] ) / 4
+                img_rgb[j+1,i,:] = [b_r,b_g,b]
+
+                # at gb
+                gb_r = ( img_pading[y,x+1] + img_pading[y+2,x+1] ) / 2
+                gb_b = ( img_pading[y+1,x] + img_pading[y+1,x+2] ) / 2
+                img_rgb[j+1,i+1,:] = [gb_r,gb,gb_b]
+
+                # at gr
+                gr_r = ( img_pading[y,x-1] + img_pading[y,x+1] ) / 2
+                gr_b = ( img_pading[y-1,x] + img_pading[y+1,x] ) / 2
+                img_rgb[j,i,:] = [gr_r,gr,gr_b]
+            elif bayer_pattern == 'gbrg':
+                b = img_pading[y,x+1]
+                gb = img_pading[y,x]
+                gr = img_pading[y+1,x+1]
+                r = img_pading[y+1,x]
+                i = x-2
+                j = y-2
+                # at r
+                r_b = (img_pading[y,x-1] + img_pading[y,x+1] + img_pading[y+2,x-1] + img_pading[y+2,x+1] )/4    # will overflow if dtype is uint8
+                r_g = (img_pading[y,x] + img_pading[y+2,x] + img_pading[y+1,x-1] + img_pading[y+1,x+1] )/4
+                img_rgb[j+1,i,:] = [r,r_g,r_b]
+
+                # at b
+                b_r = ( img_pading[y-1,x] + img_pading[y+1,x] + img_pading[y-1,x+2] + img_pading[y+1,x+2] ) / 4
+                b_g = ( img_pading[y,x] + img_pading[y,x+2] + img_pading[y-1,x+1] + img_pading[y+1,x+1] ) / 4
+                img_rgb[j,i+1,:] = [b_r,b_g,b]
+
+                # at gb
+                gb_r = ( img_pading[y-1,x] + img_pading[y+1,x] ) / 2
+                gb_b = ( img_pading[y,x-1] + img_pading[y,x+1] ) / 2
+                img_rgb[j,i,:] = [gb_r,gb,gb_b]
+
+                # at gr
+                gr_r = ( img_pading[y+1,x] + img_pading[y+1,x+2] ) / 2
+                gr_b = ( img_pading[y,x+1] + img_pading[y+2,x+1] ) / 2
+                img_rgb[j+1,i+1,:] = [gr_r,gr,gr_b]
+            else : 
+                print('Invalid bayer pattern. Please make sure the bayer pattern is correct')
+                exit()
 
     return img_rgb
 
+
 if __name__ == '__main__':
-    img_raw = hex2image('raw_rggb.hex',1601,863)
-    img_rgb = debayer_bilinear(img_raw,'rggb')
-    plt.subplot(221);plt.imshow(img_raw,cmap='gray')
-    plt.subplot(222);plt.imshow(img_rgb)
+    #extract_raw('test.jpg','gbrg','raw_gbrg.hex')
+    img_raw = hex2image('raw_gbrg.hex',1920,1080)
+    #img_raw = np.squeeze(img_raw,2)
+    img_rgb = debayer_bilinear(img_raw,'gbrg')
+    plt.subplot(121);plt.imshow(img_raw,cmap='gray')
+    plt.subplot(122);plt.imshow(img_rgb)
     plt.show()
