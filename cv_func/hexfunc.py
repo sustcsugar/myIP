@@ -1,5 +1,4 @@
 from os import replace
-from cv2 import imshow
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
