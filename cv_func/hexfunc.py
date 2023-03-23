@@ -218,6 +218,8 @@ def extract_raw(img_path:str,bayer_pattern:str,hex_out_path:str):
     @param img_path : 输入RGB图像的地址
     @param bayer_pattern : 要提取的pattern
     @param hex_out_path : 要输出hex文件的地址
+
+    return : raw_image
     '''
     hex_out = open(hex_out_path,'w')
     rgb_img = cv2.imread(img_path)
@@ -272,7 +274,7 @@ def extract_raw(img_path:str,bayer_pattern:str,hex_out_path:str):
         hex_out.write(conv_to_hex+'\n')
     hex_out.close()
 
-    return raw_img
+    return raw_img,r_pixel,gr_pixel,b_pixel,gb_pixel
 
 def debayer(img_in:np.ndarray,flags=0):
     '''
@@ -450,10 +452,13 @@ def debayer_bilinear(img_in,bayer_pattern:str):
 
 
 if __name__ == '__main__':
-    #extract_raw('test.jpg','gbrg','raw_gbrg.hex')
-    img_raw = hex2image('raw_gbrg.hex',1920,1080)
+    img_raw,r_pixel,gr_pixel,b_pixel,gb_pixel = extract_raw('../image/RGB-test.png','rggb','raw_rggb.hex')
     #img_raw = np.squeeze(img_raw,2)
-    img_rgb = debayer_bilinear(img_raw,'gbrg')
-    plt.subplot(121);plt.imshow(img_raw,cmap='gray')
-    plt.subplot(122);plt.imshow(img_rgb)
+    img_rgb = debayer_bilinear(img_raw,'rggb')
+    plt.subplot(321);plt.imshow(img_raw,cmap='gray');plt.title('raw_img')
+    plt.subplot(322);plt.imshow(img_rgb);plt.title('rgb_img')
+    plt.subplot(323);plt.imshow(r_pixel,cmap='gray');plt.title('r')
+    plt.subplot(324);plt.imshow(gr_pixel,cmap='gray');plt.title('gr')
+    plt.subplot(325);plt.imshow(gb_pixel,cmap='gray');plt.title('gb')
+    plt.subplot(326);plt.imshow(b_pixel,cmap='gray');plt.title('b')
     plt.show()
