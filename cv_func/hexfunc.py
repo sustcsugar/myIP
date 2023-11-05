@@ -276,16 +276,16 @@ def extract_raw(img_path:str,bayer_pattern:str,hex_out_path:str):
 
     return raw_img,r_pixel,gr_pixel,b_pixel,gb_pixel
 
-def debayer(img_in:np.ndarray,flags=0):
-    '''
-    去马赛克算法
-    @param img_in : 输入图像矩阵,raw图
-    @param flags: 选择去马赛克算法 默认为0
-
-    return img_out: 输出图像矩阵,三通道rgb图
-    '''
-
-    return
+# def debayer(img_in:np.ndarray,flags=0):
+#     '''
+#     去马赛克算法
+#     @param img_in : 输入图像矩阵,raw图
+#     @param flags: 选择去马赛克算法 默认为0
+# 
+#     return img_out: 输出图像矩阵,三通道rgb图
+#     '''
+# 
+#     return
 
 
 def debayer_nearest_neighbor(img_in:np.ndarray,bayer_pattern:str):
@@ -462,3 +462,4 @@ if __name__ == '__main__':
     plt.subplot(325);plt.imshow(gb_pixel,cmap='gray');plt.title('gb')
     plt.subplot(326);plt.imshow(b_pixel,cmap='gray');plt.title('b')
     plt.show()
+
