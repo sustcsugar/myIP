@@ -1,5 +1,7 @@
 image/
+img/
+img_output/
 jpeg_output/
 python_out/
 isp_out/
-cv_func/__pycache__/hexfunc.cpython-311.pyc
+cv_func/__pycache__/*
