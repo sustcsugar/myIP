@@ -6,3 +6,5 @@ python_out/
 isp_out/
 cv_func/__pycache__/*
 .ipynb_checkpoints/
+usb_stream_decode/usb_data/
+.DS_Store

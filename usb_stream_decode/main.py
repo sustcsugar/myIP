@@ -1,6 +1,7 @@
 
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 
 # 读取二进制文件
 with open('output_rgb565_1.rgb', 'rb') as f:
@@ -54,22 +55,10 @@ print(rgb888_data[:30])
 # 将rgb888_data转换为1920*1080的图像数组
 image = np.array(rgb888_data, dtype=np.uint8).reshape((1080, 1920, 3))
 
-# 调用matplotlib库
-import matplotlib.pyplot as plt
 
 # 显示图像
 plt.imshow(image)
 plt.show()
 
-
-
-
-
-
-# 将16进制字符串写入文件, 每8组数据一行, 每组数据之间添加空格
-# with open('output_rgb565_1.hex', 'w') as f:
-#     for i in range(0, len(hex_data), 16):
-#         line = ' '.join(hex_data[i:i+16])
-#         f.write(line + '\n')
 
 
